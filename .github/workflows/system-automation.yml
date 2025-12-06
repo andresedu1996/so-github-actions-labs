@@ -1,0 +1,27 @@
+name: System Automation
+
+on: [push, workflow_dispatch]
+
+jobs:
+  automation:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Linux Script
+        if: runner.os == 'Linux'
+        run: bash scripts/linux-script.sh
+      
+      - name: Run Windows Script
+        if: runner.os == 'Windows'
+        run: powershell ./scripts/windows-script.ps1
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: automation-output
+          path: artifacts/
