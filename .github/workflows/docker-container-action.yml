@@ -1,0 +1,29 @@
+name: Docker Container Action
+
+on: [push, workflow_dispatch]
+
+jobs:
+  docker-job:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t my-container .
+
+      - name: Run Container
+        run: docker run --name demo -d my-container
+
+      - name: Show Running Containers
+        run: docker ps -a
+
+      - name: Monitor Container Resources (stats)
+        run: docker stats --no-stream
+
+      - name: Communicate with container
+        run: docker exec demo echo "Mensaje desde el host"
+
+      - name: Stop Container
+        run: docker stop demo
