@@ -1,0 +1,45 @@
+name: Multi-OS System Check
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  system-info:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Print System Info (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: |
+          echo "=== Sistema Operativo ==="
+          uname -a
+          echo "=== Arquitectura ==="
+          uname -m
+          echo "=== Variables de Entorno ==="
+          env
+
+      - name: Print System Info (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Write-Output "=== Sistema Operativo ==="
+          systeminfo
+          Write-Output "=== Variables de Entorno ==="
+          Get-ChildItem Env:
+
+      - name: Create System Info File
+        run: |
+          echo "Runner OS: $RUNNER_OS" > system-info.txt
+          echo "Architecture: $RUNNER_ARCH" >> system-info.txt
+
+      - name: Upload System Info Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-info-${{ matrix.os }}
+          path: system-info.txt
